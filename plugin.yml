@@ -1,0 +1,8 @@
+name: AT
+main: me.Brian.at.Main
+version: 0.2
+author: Brian fyfly nFeng connection_lost
+commands:
+   at:
+      description: help
+      usage: /at
