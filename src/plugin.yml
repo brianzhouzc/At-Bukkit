@@ -1,0 +1,9 @@
+name: AT
+main: me.Brian.at.Main
+version: 0.3
+author: ["Brian","fyfly","nFeng","connection_lost","Bryan_lzh"]
+api-version: 1.13
+commands:
+   at:
+      description: help
+      usage: /at

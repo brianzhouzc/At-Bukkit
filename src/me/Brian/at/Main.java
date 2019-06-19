@@ -3,7 +3,6 @@ package me.Brian.at;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -20,228 +19,226 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerChatTabCompleteEvent;
+import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin implements Listener {
-	public final Logger logger = Logger.getLogger("Minecraft");
-	public static Main plugin;
-	public final HashMap<Player, Boolean> at = new HashMap<Player, Boolean>();
-	public final List<Player> cooldown = new ArrayList<Player>();
 
-	@Override
-	public void onEnable() {
-		getServer().getPluginManager().registerEvents(this, this);
-		File configFile = new File(getDataFolder(), "config.yml");
-		FileConfiguration config = YamlConfiguration
-				.loadConfiguration(configFile);
-		if (!configFile.exists()) {
-			config.set("sound", 1);
-			config.set("cooldown", 10);
-			try {
-				config.save(configFile);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    public final Logger logger = Logger.getLogger("Minecraft");
+    public static Main plugin;
+    public final HashMap<Player, Boolean> at = new HashMap<>();
+    public final List<Player> cooldown = new ArrayList<>();
 
-	@Override
-	public void onDisable() {
-	}
+    @Override
+    public void onEnable() {
+        getServer().getPluginManager().registerEvents(this, this);
+        File configFile = new File(getDataFolder(), "config.yml");
+        FileConfiguration config = YamlConfiguration
+                .loadConfiguration(configFile);
+        if (!configFile.exists()) {
+            config.set("sound", 1);
+            config.set("cooldown", 10);
+            try {
+                config.save(configFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-	public boolean onCommand(CommandSender sender, Command cmd, String lable,
-			String[] args) {
-		if (lable.equalsIgnoreCase("at")) {
-			if (sender instanceof Player) {
-				Player player = (Player) sender;
-				if (args.length == 0) {
-					player.sendMessage(ChatColor.AQUA
-							+ "------------------------------");
-					player.sendMessage(ChatColor.AQUA + "/at help : ÌáÊ¾");
-					player.sendMessage(ChatColor.AQUA + "/at disable : ´ò¿ªÃâ´òÈÅ¹¦ÄÜ");
-					player.sendMessage(ChatColor.AQUA + "/at enable : ¹Ø±ÕÃâ´òÈÅ¹¦ÄÜ");
-					player.sendMessage(ChatColor.AQUA
-							+ "------------------------------");
-					return true;
-				} else if (args.length == 1) {
-					if (args[0].equalsIgnoreCase("help")) {
-						player.sendMessage(ChatColor.AQUA
-								+ "[@] Help:ÇëÔÚÊäÈëÈËÃû×ÖÖ®ºóÊäÈë¿Õ¸ñ»òÕß°´tab²¹È«");
-						return true;
-					} else if (args[0].equalsIgnoreCase("disable")) {
-						player.sendMessage(ChatColor.AQUA + "[@] Äã´ò¿ªÁËÃâ´òÈÅ¹¦ÄÜ");
-						at.put(player, false);
-						return true;
-					} else if (args[0].equalsIgnoreCase("enable")) {
-						player.sendMessage(ChatColor.AQUA + "[@] Äã¹Ø±ÕÁËÃâ´òÈÅ¹¦ÄÜ");
-						at.put(player, true);
-						return true;
-					}
-				}
-			} else {
-				sender.sendMessage("[@] Ö»ÓĞÍæ¼Ò²ÅÄÜÓÃ@");
-			}
-		}
-		return false;
-	}
+    @Override
+    public void onDisable() {
+    }
 
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void chat(AsyncPlayerChatEvent event) {
-		String msg = event.getMessage();
-		final Player player = event.getPlayer();
-		int sum = 0;
-		if (msg.contains("@")) {
-			if (!cooldown.contains(player)) {
-				List<Player> ap = new ArrayList<Player>();
-				ap.addAll(Arrays.asList(Bukkit.getServer().getOnlinePlayers()));
-				int sound = getConfig().getInt("sound");
-				int cooldownsec = getConfig().getInt("cooldown");
-				if (player.hasPermission("at.cooldown") || player.isOp()) {
-					cooldownsec = 0;
-				}
-				if (msg.contains("@È«ÌåÍæ¼Ò")) {
-					if (player.hasPermission("at.use.all") || player.isOp()) {
-						for (Player target : ap) {
-							if (!(at.containsKey(target) && at.get(target) == false)) {
-								target.sendMessage(ChatColor.AQUA + "[@] "
-										+ player.getDisplayName()
-										+ ChatColor.AQUA + " @ÁËÄã");
-								switch (sound) {
-								case 1:
-									target.playSound(target.getLocation(),
-											Sound.LEVEL_UP, 1.0F, 1.0F);
-									break;
-								case 2:
-									target.playSound(target.getLocation(),
-											Sound.EXPLODE, 1.0F, 1.0F);
-									break;
-								case 3:
-									target.playSound(target.getLocation(),
-											Sound.GHAST_SCREAM, 1.0F, 1.0F);
-									break;
-								case 4:
-									target.playSound(target.getLocation(),
-											Sound.FIREWORK_TWINKLE, 1.0F, 1.0F);
-									break;
-								case 5:
-									target.playSound(target.getLocation(),
-											Sound.WITHER_IDLE, 1.0F, 1.0F);
-									break;
-								default:
-									player.sendMessage(ChatColor.AQUA
-											+ "[@] ÇëÁªÏµop,@²å¼şÅäÖÃÓĞÎó");
-									break;
-								}
-							}
-						}
+    public boolean onCommand(CommandSender sender, Command cmd, String lable,
+            String[] args) {
+        if (lable.equalsIgnoreCase("at")) {
+            if (sender instanceof Player) {
+                Player player = (Player) sender;
+                if (args.length == 0) {
+                    player.sendMessage(ChatColor.AQUA
+                            + "------------------------------");
+                    player.sendMessage(ChatColor.AQUA + "/at help : æç¤º");
+                    player.sendMessage(ChatColor.AQUA + "/at disable : æ‰“å¼€å…æ‰“æ‰°åŠŸèƒ½");
+                    player.sendMessage(ChatColor.AQUA + "/at enable : å…³é—­å…æ‰“æ‰°åŠŸèƒ½");
+                    player.sendMessage(ChatColor.AQUA
+                            + "------------------------------");
+                    return true;
+                } else if (args.length == 1) {
+                    if (args[0].equalsIgnoreCase("help")) {
+                        player.sendMessage(ChatColor.AQUA
+                                + "[@] Help:è¯·åœ¨è¾“å…¥äººåå­—ä¹‹åè¾“å…¥ç©ºæ ¼æˆ–è€…æŒ‰tabè¡¥å…¨");
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("disable")) {
+                        player.sendMessage(ChatColor.AQUA + "[@] ä½ æ‰“å¼€äº†å…æ‰“æ‰°åŠŸèƒ½");
+                        at.put(player, false);
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("enable")) {
+                        player.sendMessage(ChatColor.AQUA + "[@] ä½ å…³é—­äº†å…æ‰“æ‰°åŠŸèƒ½");
+                        at.put(player, true);
+                        return true;
+                    }
+                }
+            } else {
+                sender.sendMessage("[@] åªæœ‰ç©å®¶æ‰èƒ½ç”¨@");
+            }
+        }
+        return false;
+    }
 
-						msg = msg.replaceAll("@È«ÌåÍæ¼Ò", ChatColor.AQUA + "@È«ÌåÍæ¼Ò"
-								+ ChatColor.RESET);
-						sum++;
-					} else {
-						player.sendMessage(ChatColor.AQUA + "[@] ÄãÃ»ÓĞÈ¨ÏŞ@È«ÌåÍæ¼Ò£¡");
-					}
-				} else {
-					if (player.hasPermission("at.use") || player.isOp()) {
-						for (Player target : ap) {
-							if (msg.endsWith("@" + target.getName())
-									|| msg.contains("@" + target.getName()
-											+ " ")) {
-								msg = msg.replaceAll("@" + target.getName(),
-										ChatColor.AQUA + "@" + target.getName()
-												+ ChatColor.RESET);
-								if (!(at.containsKey(target) && at.get(target) == false)) {
-									target.sendMessage(ChatColor.AQUA + "[@] "
-											+ player.getDisplayName()
-											+ ChatColor.AQUA + "@ÁËÄã");
-									switch (sound) {
-									case 1:
-										target.playSound(target.getLocation(),
-												Sound.LEVEL_UP, 1.0F, 1.0F);
-										break;
-									case 2:
-										target.playSound(target.getLocation(),
-												Sound.EXPLODE, 1.0F, 1.0F);
-										break;
-									case 3:
-										target.playSound(target.getLocation(),
-												Sound.GHAST_SCREAM, 1.0F, 1.0F);
-										break;
-									case 4:
-										target.playSound(target.getLocation(),
-												Sound.FIREWORK_TWINKLE, 1.0F, 1.0F);
-										break;
-									case 5:
-										target.playSound(target.getLocation(),
-												Sound.WITHER_IDLE, 1.0F, 1.0F);
-										break;
-									default:
-										player.sendMessage(ChatColor.AQUA
-												+ "[@] ÇëÁªÏµop,@²å¼şÅäÖÃÓĞÎó");
-										break;
-									}
-								}
-							}
-							sum++;
-						}
-						if (sum == 0) {
-							player.sendMessage(ChatColor.AQUA + "[@] "
-									+ "Íæ¼Ò²»ÔÚÏß»ò²»´æÔÚ");
-						}
-					} else {
-						player.sendMessage(ChatColor.AQUA + "[@] ÄãÃ»ÓĞÈ¨ÏŞÊ¹ÓÃ@");
-					}
-				}
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void chat(AsyncPlayerChatEvent event) {
+        String msg = event.getMessage();
+        final Player player = event.getPlayer();
+        int sum = 0;
+        if (msg.contains("@")) {
+            if (!cooldown.contains(player)) {
+                List<Player> ap = new ArrayList<Player>();
+                ap.addAll(Bukkit.getServer().getOnlinePlayers());
+                int sound = getConfig().getInt("sound");
+                int cooldownsec = getConfig().getInt("cooldown");
+                if (player.hasPermission("at.cooldown") || player.isOp()) {
+                    cooldownsec = 0;
+                }
+                if (msg.contains("@å…¨ä½“ç©å®¶")) {
+                    if (player.hasPermission("at.use.all") || player.isOp()) {
+                        for (Player target : ap) {
+                            if (!(at.containsKey(target) && at.get(target) == false)) {
+                                target.sendMessage(ChatColor.AQUA + "[@] "
+                                        + player.getDisplayName()
+                                        + ChatColor.AQUA + " @äº†ä½ ");
+                                switch (sound) {
+                                    case 1:
+                                        target.playSound(target.getLocation(),
+                                                Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
+                                        break;
+                                    case 2:
+                                        target.playSound(target.getLocation(),
+                                                Sound.ENTITY_GENERIC_EXPLODE, 1.0F, 1.0F);
+                                        break;
+                                    case 3:
+                                        target.playSound(target.getLocation(),
+                                                Sound.ENTITY_GHAST_SCREAM, 1.0F, 1.0F);
+                                        break;
+                                    case 4:
+                                        target.playSound(target.getLocation(),
+                                                Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 1.0F, 1.0F);
+                                        break;
+                                    case 5:
+                                        target.playSound(target.getLocation(),
+                                                Sound.ENTITY_WITHER_DEATH, 1.0F, 1.0F);
+                                        break;
+                                    default:
+                                        player.sendMessage(ChatColor.AQUA
+                                                + "[@] è¯·è”ç³»op,@æ’ä»¶é…ç½®æœ‰è¯¯");
+                                        break;
+                                }
+                            }
+                        }
 
-				if (sum != 0) {
-					event.setMessage(msg);
-					cooldown.add(player);
-					Bukkit.getServer().getScheduler()
-							.scheduleSyncDelayedTask(this, new Runnable() {
-								public void run() {
-									cooldown.remove(player);
-								}
-							}, cooldownsec * 20);
+                        msg = msg.replaceAll("@å…¨ä½“ç©å®¶", ChatColor.AQUA + "@å…¨ä½“ç©å®¶"
+                                + ChatColor.RESET);
+                        sum++;
+                    } else {
+                        player.sendMessage(ChatColor.AQUA + "[@] ä½ æ²¡æœ‰æƒé™@å…¨ä½“ç©å®¶ï¼");
+                    }
+                } else {
+                    if (player.hasPermission("at.use") || player.isOp()) {
+                        for (Player target : ap) {
+                            if (msg.endsWith("@" + target.getName())
+                                    || msg.contains("@" + target.getName()
+                                            + " ")) {
+                                msg = msg.replaceAll("@" + target.getName(),
+                                        ChatColor.AQUA + "@" + target.getName()
+                                        + ChatColor.RESET);
+                                if (!(at.containsKey(target) && at.get(target) == false)) {
+                                    target.sendMessage(ChatColor.AQUA + "[@] "
+                                            + player.getDisplayName()
+                                            + ChatColor.AQUA + "@äº†ä½ ");
+                                    switch (sound) {
+                                        case 1:
+                                            target.playSound(target.getLocation(),
+                                                    Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
+                                            break;
+                                        case 2:
+                                            target.playSound(target.getLocation(),
+                                                    Sound.ENTITY_GENERIC_EXPLODE, 1.0F, 1.0F);
+                                            break;
+                                        case 3:
+                                            target.playSound(target.getLocation(),
+                                                    Sound.ENTITY_GHAST_SCREAM, 1.0F, 1.0F);
+                                            break;
+                                        case 4:
+                                            target.playSound(target.getLocation(),
+                                                    Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 1.0F, 1.0F);
+                                            break;
+                                        case 5:
+                                            target.playSound(target.getLocation(),
+                                                    Sound.ENTITY_WITHER_DEATH, 1.0F, 1.0F);
+                                            break;
+                                        default:
+                                            player.sendMessage(ChatColor.AQUA
+                                                    + "[@] è¯·è”ç³»op,@æ’ä»¶é…ç½®æœ‰è¯¯");
+                                            break;
+                                    }
+                                }
+                            }
+                            sum++;
+                        }
+                        if (sum == 0) {
+                            player.sendMessage(ChatColor.AQUA + "[@] "
+                                    + "ç©å®¶ä¸åœ¨çº¿æˆ–ä¸å­˜åœ¨");
+                        }
+                    } else {
+                        player.sendMessage(ChatColor.AQUA + "[@] ä½ æ²¡æœ‰æƒé™ä½¿ç”¨@");
+                    }
+                }
 
-				}
-			} else {
-				int cooldownsec = getConfig().getInt("cooldown");
-				player.sendMessage(ChatColor.AQUA + "[@] ÀäÈ´ÖĞ£¬ÀäÈ´Ê±¼äÎª"
-						+ cooldownsec + "Ãë");
-			}
-		}
-	}
+                if (sum != 0) {
+                    event.setMessage(msg);
+                    cooldown.add(player);
+                    Bukkit.getServer().getScheduler()
+                            .scheduleSyncDelayedTask(this, new Runnable() {
+                                public void run() {
+                                    cooldown.remove(player);
+                                }
+                            }, cooldownsec * 20);
 
-	@EventHandler
-	public void onTabComplete(PlayerChatTabCompleteEvent event) {
-		String uncomplete = event.getChatMessage();
-		if (uncomplete.contains("@") && !uncomplete.endsWith(" ")) {
-			List<Player> allplayers = new ArrayList<Player>();
-			allplayers.addAll(Arrays.asList(Bukkit.getServer()
-					.getOnlinePlayers()));
-			String at = uncomplete.substring(uncomplete.lastIndexOf("@") + 1);
-			List<String> fit = new ArrayList<String>();
-			for (Player p : allplayers) {
-				if (p.getName().toLowerCase().startsWith(at.toLowerCase())) {
-					if (uncomplete.contains(" ")) {
-						fit.add(uncomplete.substring(
-								uncomplete.lastIndexOf(" ") + 1,
-								uncomplete.lastIndexOf("@"))
-								+ "@" + p.getName());
-						// event.getPlayer().sendMessage(ChatColor.RED+event.getTabCompletions().toString()+ChatColor.GREEN+event.getLastToken());
-					} else {
-						fit.add(uncomplete.substring(0,
-								uncomplete.lastIndexOf("@"))
-								+ "@" + p.getName());
-						// event.getPlayer().sendMessage(ChatColor.RED+event.getTabCompletions().toString()+ChatColor.GREEN+event.getLastToken());
-					}
-				}
-			}
-			event.getTabCompletions().clear();
-			event.getTabCompletions().addAll(fit);
-			// event.getPlayer().sendMessage(ChatColor.RED+event.getTabCompletions().toString()+ChatColor.GREEN+event.getLastToken());
-		}
-	}
+                }
+            } else {
+                int cooldownsec = getConfig().getInt("cooldown");
+                player.sendMessage(ChatColor.AQUA + "[@] å†·å´ä¸­ï¼Œå†·å´æ—¶é—´ä¸º"
+                        + cooldownsec + "ç§’");
+            }
+        }
+    }
+
+    @EventHandler
+    public void onTabComplete(TabCompleteEvent event) {
+        String uncomplete = event.getBuffer();
+        if (uncomplete.contains("@") && !uncomplete.endsWith(" ")) {
+            String at = uncomplete.substring(uncomplete.lastIndexOf("@") + 1);
+            List<String> fit = new ArrayList<>();
+            for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+                if (p.getName().toLowerCase().startsWith(at.toLowerCase())) {
+                    if (uncomplete.contains(" ")) {
+                        fit.add(uncomplete.substring(
+                                uncomplete.lastIndexOf(" ") + 1,
+                                uncomplete.lastIndexOf("@"))
+                                + "@" + p.getName());
+                        // event.getPlayer().sendMessage(ChatColor.RED+event.getTabCompletions().toString()+ChatColor.GREEN+event.getLastToken());
+                    } else {
+                        fit.add(uncomplete.substring(0,
+                                uncomplete.lastIndexOf("@"))
+                                + "@" + p.getName());
+                        // event.getPlayer().sendMessage(ChatColor.RED+event.getTabCompletions().toString()+ChatColor.GREEN+event.getLastToken());
+                    }
+                }
+            }
+            event.getCompletions().clear();
+            event.getCompletions().addAll(fit);
+            // event.getPlayer().sendMessage(ChatColor.RED+event.getTabCompletions().toString()+ChatColor.GREEN+event.getLastToken());
+        }
+    }
 
 }
